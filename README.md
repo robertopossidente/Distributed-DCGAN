@@ -20,7 +20,7 @@ tar -xvf cifar-10-python.tar.gz
 cd ..
 ```
 
-This will download and extract cifar-10 dataset to `./cifar-10-batches-py/`
+This will download and extract cifar-10 dataset to `./cifar10/`
 
 ## Installing and Running
 
