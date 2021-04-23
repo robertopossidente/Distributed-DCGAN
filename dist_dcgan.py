@@ -135,6 +135,7 @@ def main():
     parser.add_argument('--ngf', type=int, default=64)
     parser.add_argument('--ndf', type=int, default=64)
     parser.add_argument('--out_folder', default='.', help='folder to output images')
+    parser.add_argument('--max_workers', default=4, type=int, help='Number of workers to perform loading')
     argv = parser.parse_args()
     print(argv)
 
@@ -155,7 +156,7 @@ def main():
     train_dataset, n_classes = get_dataset(argv.dataset, argv.dataroot, argv.image_size)
     train_sampler = DistributedSampler(dataset=train_dataset)
     train_loader = DataLoader(dataset=train_dataset, batch_size=argv.batch_size, sampler=train_sampler, \
-                                num_workers=4)
+                                num_workers=argv.max_workers)
 
     # Create models
     device = torch.device(f"cuda:{argv.local_rank}" if argv.cuda else "cpu")
