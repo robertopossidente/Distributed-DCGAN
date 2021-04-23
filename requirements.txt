@@ -1,0 +1,6 @@
+torch
+torchvision
+lmdb
+wget
+requests
+tqdm
