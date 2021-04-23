@@ -136,6 +136,7 @@ def main():
     parser.add_argument('--ndf', type=int, default=64)
     parser.add_argument('--out_folder', default='.', help='folder to output images')
     argv = parser.parse_args()
+    print(argv)
 
     # We need to use seeds to make sure that the models initialized in different processes are the same
     set_random_seeds(argv.seed)

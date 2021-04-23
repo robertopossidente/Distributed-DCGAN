@@ -14,8 +14,10 @@ with the samples from the generative model.
 First download and extract the desired dataset. In this example we'll download and use CIFAR-10 dataset, which can be obtained using the commands below:
 
 ```console
-wget www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+mkdir cifar10 && cd cifar10
+wget --no-check-certificate https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
 tar -xvf cifar-10-python.tar.gz
+cd ..
 ```
 
 This will download and extract cifar-10 dataset to `./cifar-10-batches-py/`
@@ -32,12 +34,12 @@ docker build -t dist_dcgan .
 On first terminal run:
 
 ```console
-docker run --rm --network=host -v=$(pwd):/root dist_dcgan:latest python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=0 --master_addr="172.17.0.1" --master_port=1234 dist_dcgan.py --dataset cifar10 --dataroot ./cifar-10-batches-py
+docker run --rm --network=host -v=$(pwd):/root dist_dcgan:latest python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=0 --master_addr="172.17.0.1" --master_port=1234 dist_dcgan.py --dataset cifar10 --dataroot ./cifar10
 ```
 
 And in the second terminal, run:
 ```console
-docker run --rm --network=host -v=$(pwd):/root dist_dcgan:latest python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=1 --master_addr="172.17.0.1" --master_port=1234 dist_dcgan.py --dataset cifar10 --dataroot ./cifar-10-batches-py
+docker run --rm --network=host -v=$(pwd):/root dist_dcgan:latest python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=1 --master_addr="172.17.0.1" --master_port=1234 dist_dcgan.py --dataset cifar10 --dataroot ./cifar10
 ```
 
 * The `-v` parameter is mapping the current directory to docker's `/root` directory, where data and the scripts resides.
