@@ -97,12 +97,13 @@ def get_dataset(dataset_name: str, dataroot: str, image_size: int):
     print(f"Dataset {dataset_name} loaded")
     return dataset, nc
 
-def set_random_seeds(random_seed: int = 0):
+def set_random_seeds(random_seed: int = 0, use_cuda: bool = False):
     torch.manual_seed(random_seed)
     np.random.seed(random_seed)
     random.seed(random_seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+    if use_cuda:
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
     print(f"Using seed: {random_seed}")
 
 def weights_init(m):
@@ -124,7 +125,7 @@ def main():
     parser.add_argument("--num_epochs", type=int, help="Number of training epochs.", \
                         default=25)
     parser.add_argument("--batch_size", type=int, help="Training batch size for one process.",\
-                        default=64)
+                        default=32)
     parser.add_argument("--learning_rate", type=float, help="Learning rate.", default=0.0002)
     parser.add_argument('--image_size', type=int, default=64, help='The height / width of the \
                         input image to network')
@@ -140,7 +141,7 @@ def main():
     print(argv)
 
     # We need to use seeds to make sure that the models initialized in different processes are the same
-    set_random_seeds(argv.seed)
+    set_random_seeds(argv.seed, argv.cuda)
     print(f"Using GPU: {argv.cuda}")
 
     # Initializes the distributed backend which will take care of sychronizing nodes
@@ -213,6 +214,7 @@ def main():
             D_G_z1 = output.mean().item()
             errD = errD_real + errD_fake
             # A barrier here
+            iteration_end_time = time.time()
             optimizerD.step()
 
             ############################
@@ -228,10 +230,10 @@ def main():
             optimizerG.step()
 
             iteration_end_time = time.time()-iteration_start_time
-            print(f"[{epoch}/{argv.num_epochs}][{i}/{len(train_loader)}] " \
+            print(f"[epoch: {epoch}/{argv.num_epochs}][iteration: {i}/{len(train_loader)}][rank: {rank}] " \
                   f"Loss_D: {errD.item():.4f}, Loss_G: {errG.item():.4f}, " \
                   f"D(x): {D_x:.4f}, D(G(z)): {D_G_z1:.4f} / {D_G_z2:.4f}, " \
-                  f"it time: {iteration_end_time:.4f}s")
+                  f"iteration time: {iteration_end_time:.4f}s")
 
             if i%100 == 0:
                 vutils.save_image(real_cpu, f'{argv.out_folder}/real_samples_rank_{rank}_epoch_{epoch}_iter_{i}.png', normalize=True)
@@ -240,7 +242,9 @@ def main():
                 torch.distributed.barrier()
 
         epoch_end_time = time.time()-epoch_start_time
-        print(f"Epoch {epoch} took: {epoch_end_time:.4f} seconds")
+        print(f"[rank: {rank}] Epoch {epoch} took: {epoch_end_time:.4f} seconds")
+
+    torch.distributed.destroy_process_group()
 
 if __name__ == "__main__":
     main()
