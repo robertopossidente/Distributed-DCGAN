@@ -1,6 +1,7 @@
 Data: 20/05/2021 - Roberto de Oliveira Possidente - r225554@g.unicamp.br
 
 Atividade 6: Semana 06/05 - Executando a Rede Generativa Adversarial
+
 Relatório: https://github.com/robertopossidente/Distributed-DCGAN/blob/ativ-6-exp-1/experiments/ativ-6-exp-1/README.md
 
 Objetivo
