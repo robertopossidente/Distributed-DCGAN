@@ -71,9 +71,9 @@ clusters:
         - setup-initial
 
     after:
-    - setup-packages
-    - setup-commands
-    - setup-docker
-    - setup-gan
-    - run-gan
+    #- setup-packages
+    #- setup-commands
+    #- setup-docker
+    #- setup-gan
+    #- run-gan
 
