@@ -63,12 +63,12 @@ clusters:
         setups:
         - setup-initial
 
-      #taskmanager:
-      #  type: type-a
-      #  count: 2
-      #  min_count: 1
-      #  setups:
-      #  - setup-initial
+      taskmanager:
+        type: type-small
+        count: 2
+        min_count: 1
+        setups:
+        - setup-initial
 
     after:
     - setup-packages
