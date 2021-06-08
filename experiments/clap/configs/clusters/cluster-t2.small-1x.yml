@@ -1,0 +1,79 @@
+setups:
+  setup-initial:
+    roles:
+    - name: gan
+    actions:
+    - role: gan
+      action: update-packages
+
+  setup-packages:
+    actions:
+    - role: gan
+      action: run-command
+      extra:
+        cmd: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        cmd: sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+  setup-commands:
+    actions:
+    - role: gan
+      action: install-packages
+      extra:
+        packages: apt-transport-https ca-certificates curl gnupg software-properties-common docker-ce    
+  
+  setup-master-ip:
+    actions:
+    - role: gan
+      action: run-command
+      extra:
+        cmd: export MY_IP=$(curl -w "\n" -s https://api.ipify.org)
+
+  setup-docker:
+    actions:
+    - role: gan
+      action: run-command
+      extra:
+        cmd: sudo systemctl enable docker
+
+  setup-gan:
+    actions:
+    - role: gan
+      action: copy
+      extra:
+        src: "/home/ubuntu/Distributed-DCGAN/"
+        dest: "/home/ubuntu/Distributed-DCGAN/"
+
+  run-gan:
+    actions:
+    - role: gan
+      action: run-command
+      extra:
+        cmd: sudo docker build -t dist_dcgan .
+        cmd: sudo docker run --rm --network=host -v=$(pwd):/root dist_dcgan:latest python -m torch.distributed.launch --nproc_per_node=1 --nnodes=1 --node_rank=0 --master_addr=$(echo $MY_IP$) --master_port=1234 dist_dcgan.py --dataset cifar10 --dataroot ./cifar10 --num_epochs 1 --batch_size 16
+
+clusters:
+  my-cluster:
+    #options:
+    #  ssh_to: jobmanager
+
+    nodes:
+      jobmanager:
+        type: type-small
+        count: 1
+        setups:
+        - setup-initial
+
+      #taskmanager:
+      #  type: type-a
+      #  count: 2
+      #  min_count: 1
+      #  setups:
+      #  - setup-initial
+
+    after:
+    - setup-packages
+    - setup-commands
+    - setup-docker
+    - setup-gan
+    - run-gan
+

@@ -1,8 +1,8 @@
 login-ubuntu:
     user: ubuntu
-    keypair_name: otavio_key_us_east_1
-    keypair_public_file: otavio_key_us_east_1.pub
-    keypair_private_file: otavio_key_us_east_1.pem
+    keypair_name: gan-clap-keypair
+    keypair_public_file: gan-clap-keypair.pub
+    keypair_private_file: gan-clap-keypair.pem
     sudo: true
     sudo_user: root
 
